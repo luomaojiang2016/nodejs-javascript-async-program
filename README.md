@@ -90,3 +90,118 @@ Sub.attch(new Observer('xiao li'));
 Sub.notify('1234556');
 </code></pre>
 ## Promise
+相对回调函数而言,Promise在异步处理上解决了回调地狱（Callback Hell）问题，把callback 嵌套调用变成链式调用，如：
+<pre>
+<code>
+firstAsync(function(data){
+    //处理得到的 data 数据
+    //....
+    secondAsync(function(data2){
+        //处理得到的 data2 数据
+        //....
+        thirdAsync(function(data3){
+              //处理得到的 data3 数据
+              //....
+        });
+    });
+});
+
+firstAsync()
+.then(function(data){
+    //处理得到的 data 数据
+    //....
+    return secondAsync();
+})
+.then(function(data2){
+    //处理得到的 data2 数据
+    //....
+    return thirdAsync();
+})
+.then(function(data3){
+    //处理得到的 data3 数据
+    //....
+});
+</code>
+</pre>
+
+## async/await
+ES7 提出的async 函数，终于让 JavaScript 对于异步操作有了终极解决方案。No more callback hell。
+async 函数是 Generator 函数的语法糖。使用 关键字 async 来表示，在函数内部使用 await 来表示异步。
+<pre>
+<code>
+function fn() {
+    return new Promise((resove, reject) => {
+        setTimeout(() => {
+            resove(true);
+        }, 1000);
+
+    })
+}
+
+async function name() {
+    try {
+        const result = await fn();
+        console.log(result);
+    } catch (err) {
+        console.log(err);
+    }
+}
+name();
+</code>
+</pre>
+
+async/await 的优势在于处理 then 链,如使用Promise
+<pre>
+<code>
+function takeLongTime(n) {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(n + 200), n);
+    });
+}
+
+function step1(n) {
+    console.log(`step1 with ${n}`);
+    return takeLongTime(n);
+}
+
+function step2(n) {
+    console.log(`step2 with ${n}`);
+    return takeLongTime(n);
+}
+
+function step3(n) {
+    console.log(`step3 with ${n}`);
+    return takeLongTime(n);
+}
+
+function doIt() {
+    console.time("doIt");
+    const time1 = 300;
+    step1(time1)
+        .then(time2 => step2(time2))
+        .then(time3 => step3(time3))
+        .then(result => {
+            console.log(`result is ${result}`);
+            console.timeEnd("doIt");
+        });
+}
+
+doIt()
+</code>
+</pre>
+如果使用 async/await
+<pre>
+<code>
+async function doIt() {
+    console.time("doIt");
+    const time1 = 300;
+    const time2 = await step1(time1);
+    const time3 = await step2(time2);
+    const result = await step3(time3);
+    console.log(`result is ${result}`);
+    console.timeEnd("doIt");
+}
+
+doIt();
+</code>
+</pre>
